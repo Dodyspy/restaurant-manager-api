@@ -1,30 +1,25 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
-// Your web app's Firebase configuration with hardcoded values for testing
-// IMPORTANT: This is a temporary solution for debugging only
+// Firebase configuration from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyCBUYLNkxcz-VTEfr-6Vl9pvEcrXPs5Dog",
-  authDomain: "casanova-dissy-reservations.firebaseapp.com",
-  projectId: "casanova-dissy-reservations",
-  storageBucket: "casanova-dissy-reservations.appspot.com",
-  messagingSenderId: "22271318428",
-  appId: "1:22271318428:web:d49f72542bfac044f49059"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-// Log Firebase config (without sensitive values)
-console.log('Firebase configuration (hardcoded for testing):', {
-  authDomain: firebaseConfig.authDomain,
-  projectId: firebaseConfig.projectId,
-  storageBucket: firebaseConfig.storageBucket,
-});
+// Validate required environment variables
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  throw new Error('Missing required Firebase environment variables. Check your .env.local file.');
+}
 
-// Initialize Firebase with simplified error handling
+// Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-console.log('Firebase initialized successfully');
 
 // Initialize Firestore
 const db = getFirestore(app);
-console.log('Firestore initialized successfully');
 
 export { db };

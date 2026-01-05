@@ -80,21 +80,23 @@ git push -u origin main
 
 **In Vercel Dashboard → Settings → Environment Variables:**
 
+⚠️ **IMPORTANT:** See `ENV_SETUP_GUIDE.md` for complete instructions on how to get these values.
+
 ### Firebase Client (Public)
 ```bash
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=casanova-dissy-reservations.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=casanova-dissy-reservations
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=casanova-dissy-reservations.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=XXXXXXXXXXXX
-NEXT_PUBLIC_FIREBASE_APP_ID=1:XXXXXXXXXXXX:web:XXXXXXXXXXXXXXXXXXXX
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
 ### Firebase Admin (Server-side)
 ```bash
-FIREBASE_PROJECT_ID=casanova-dissy-reservations
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-XXXXX@casanova-dissy-reservations.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n-----END PRIVATE KEY-----\n"
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n"
 ```
 
 ### Other Configuration
