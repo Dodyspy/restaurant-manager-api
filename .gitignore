@@ -26,6 +26,12 @@ yarn-error.log*
 .env*.local
 .env
 
+# Environment variable documentation files with secrets
+*ENV_VARS.txt
+COMPLETE_ENV_VARS.txt
+FINAL_ENV_VARS.txt
+VERCEL_ENV_VARS.txt
+
 # vercel
 .vercel
 
