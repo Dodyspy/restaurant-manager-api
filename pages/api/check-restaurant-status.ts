@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export default async function handler(
   req: NextApiRequest,
@@ -30,11 +30,12 @@ export default async function handler(
       return;
     }
 
-    // Get restaurant from Firebase
-    const restaurantRef = doc(db, 'restaurants', code);
-    const restaurantSnap = await getDoc(restaurantRef);
+    // Query restaurant by code field
+    const restaurantsRef = collection(db, 'restaurants');
+    const q = query(restaurantsRef, where('code', '==', code));
+    const querySnapshot = await getDocs(q);
 
-    if (!restaurantSnap.exists()) {
+    if (querySnapshot.empty) {
       res.status(404).json({ 
         active: false, 
         error: 'Restaurant not found' 
@@ -42,7 +43,7 @@ export default async function handler(
       return;
     }
 
-    const restaurant = restaurantSnap.data();
+    const restaurant = querySnapshot.docs[0].data();
     const subscriptionStatus = restaurant.subscriptionStatus || 'inactive';
     const reservationsThisMonth = restaurant.reservationsThisMonth || 0;
     const reservationLimit = restaurant.reservationLimit || 200;
