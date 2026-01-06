@@ -1,10 +1,5 @@
-// EmailJS configuration for Restaurant Manager Pro
-const EMAILJS_SERVICE_ID = 'service_smftwtd';
-const EMAILJS_USER_ID = 'drn4SQLCpT6XDIU6o';
-
-// Template IDs
-const WELCOME_TEMPLATE_ID = 'template_welcome'; // We'll create this template
-const CONFIRMATION_TEMPLATE_ID = 'template_jqxutxh';
+// Email service using Firebase Cloud Functions with Nodemailer
+const CLOUD_FUNCTION_URL = 'https://us-central1-casanova-dissy-reservations.cloudfunctions.net';
 
 interface WelcomeEmailParams {
   restaurantName: string;
@@ -17,54 +12,31 @@ interface WelcomeEmailParams {
 
 export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<boolean> {
   try {
-    const emailParams = {
-      service_id: EMAILJS_SERVICE_ID,
-      user_id: EMAILJS_USER_ID,
-      template_id: WELCOME_TEMPLATE_ID,
-      template_params: {
-        restaurant_name: params.restaurantName,
-        owner_email: params.ownerEmail,
-        restaurant_code: params.restaurantCode,
-        backoffice_url: params.backofficeUrl,
-        widget_url: params.widgetUrl,
-        trial_end_date: new Date(params.trialEndDate).toLocaleDateString('fr-FR'),
-        to_email: params.ownerEmail,
-        to_name: params.restaurantName,
-        
-        // Widget integration code snippet
-        widget_code: `<!-- Bouton de réservation -->
-<button onclick="openReservationModal()">
-  Réserver une table
-</button>
-
-<!-- Configuration du widget -->
-<script>
-  window.RESTAURANT_CONFIG = {
-    code: '${params.restaurantCode}',
-    primaryColor: '#D4AF37',
-    backgroundColor: '#2C2C2C'
-  };
-</script>
-<script src="${params.widgetUrl}"></script>`,
-      }
-    };
-
-    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+    // Call Firebase Cloud Function to send welcome email
+    const response = await fetch(`${CLOUD_FUNCTION_URL}/sendWelcomeEmail`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(emailParams),
+      body: JSON.stringify({
+        restaurantName: params.restaurantName,
+        ownerEmail: params.ownerEmail,
+        restaurantCode: params.restaurantCode,
+        backofficeUrl: params.backofficeUrl,
+        widgetUrl: params.widgetUrl,
+        trialEndDate: params.trialEndDate,
+      }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('EmailJS error:', errorText);
+      console.error('Cloud Function error:', errorText);
       return false;
     }
 
+    const result = await response.json();
     console.log('✅ Welcome email sent successfully to:', params.ownerEmail);
-    return true;
+    return result.success || true;
 
   } catch (error) {
     console.error('❌ Failed to send welcome email:', error);
@@ -78,30 +50,22 @@ export async function sendReservationConfirmation(
   reservationDetails: any
 ): Promise<boolean> {
   try {
-    const emailParams = {
-      service_id: EMAILJS_SERVICE_ID,
-      user_id: EMAILJS_USER_ID,
-      template_id: CONFIRMATION_TEMPLATE_ID,
-      template_params: {
-        to_email: customerEmail,
-        to_name: customerName,
-        name: customerName,
-        email: customerEmail,
-        ...reservationDetails,
-      }
-    };
-
-    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+    // This uses the existing Cloud Function
+    const response = await fetch(`${CLOUD_FUNCTION_URL}/sendConfirmationEmail`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(emailParams),
+      body: JSON.stringify({
+        customerEmail,
+        customerName,
+        ...reservationDetails,
+      }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('EmailJS error:', errorText);
+      console.error('Cloud Function error:', errorText);
       return false;
     }
 
