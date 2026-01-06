@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { adminDb } from '../../lib/firebase-admin';
+import { getAdminDb } from '../../lib/firebase-admin';
 
 const DEFAULT_RESTAURANT_CODE = process.env.DEFAULT_RESTAURANT_CODE ?? 'CASANOVA2024';
 
@@ -39,6 +39,7 @@ export default async function handler(
       return res.status(400).json({ message: 'Missing required parameter: id' });
     }
     
+    const adminDb = getAdminDb();
     const reservationRef = adminDb
       .collection('restaurants')
       .doc(restaurantCode)

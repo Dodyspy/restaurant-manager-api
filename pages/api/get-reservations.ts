@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { adminDb } from '../../lib/firebase-admin';
+import { getAdminDb } from '../../lib/firebase-admin';
 
 const DEFAULT_RESTAURANT_CODE = process.env.DEFAULT_RESTAURANT_CODE ?? 'CASANOVA2024';
 
@@ -54,12 +54,15 @@ export default async function handler(
   }
 
   try {
-    const restaurantCode = resolveRestaurantCode(req.query.restaurantCode);
+    const { restaurantCode: rawRestaurantCode } = req.query;
+    const restaurantCode = resolveRestaurantCode(rawRestaurantCode);
+    
+    // Get all reservations from Firestore
+    const adminDb = getAdminDb();
     const collectionRef = adminDb
       .collection('restaurants')
       .doc(restaurantCode)
       .collection('reservations');
-
     const snapshot = await collectionRef.orderBy('createdAt', 'desc').get();
     
     let reservations: Reservation[] = [];
