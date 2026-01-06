@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
 import { validateEmail, validatePhone, validateName, sanitizeInput } from '@/lib/validation';
+import { sendWelcomeEmail } from '@/lib/emailService';
 
 // Helper to generate unique restaurant code
 function generateRestaurantCode(restaurantName: string): string {
@@ -38,26 +39,6 @@ async function generateUniqueCode(restaurantName: string): Promise<string> {
   return code;
 }
 
-// Helper to send welcome email
-async function sendWelcomeEmail(
-  email: string,
-  restaurantName: string,
-  restaurantCode: string,
-  password: string
-): Promise<void> {
-  // TODO: Implement email sending using your preferred service
-  // For now, we'll log it
-  console.log('Welcome email would be sent to:', email);
-  console.log('Restaurant:', restaurantName);
-  console.log('Code:', restaurantCode);
-  console.log('Temporary password:', password);
-  
-  // In production, integrate with:
-  // - SendGrid
-  // - AWS SES
-  // - Mailgun
-  // - Or your existing EmailJS setup
-}
 
 export default async function handler(
   req: NextApiRequest,
@@ -186,12 +167,14 @@ export default async function handler(
 
     // Send welcome email
     try {
-      await sendWelcomeEmail(
-        sanitizedData.ownerEmail,
-        sanitizedData.name,
-        restaurantCode,
-        password
-      );
+      await sendWelcomeEmail({
+        restaurantName: sanitizedData.name,
+        ownerEmail: sanitizedData.ownerEmail,
+        restaurantCode: restaurantCode,
+        backofficeUrl: 'https://app.restaurantmanagerpro.fr',
+        widgetUrl: 'https://widget.restaurantmanagerpro.fr/widget.js',
+        trialEndDate: trialEndDate.toISOString(),
+      });
     } catch (emailError) {
       console.error('Failed to send welcome email:', emailError);
       // Don't fail the signup if email fails
