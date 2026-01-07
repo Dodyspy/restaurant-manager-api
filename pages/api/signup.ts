@@ -168,17 +168,56 @@ export default async function handler(
       updatedAt: serverTimestamp(),
     };
 
-    // TODO: Firebase Admin SDK configuration needed on Vercel
-    // For now, create restaurant without Firebase Auth user
-    // User will need to be created manually in Firebase Console
+    // Create Firebase Auth user account
+    const adminAuth = getAdminAuth();
+    const adminDb = getAdminDb();
     
-    console.log('⚠️ Firebase Admin not configured - creating restaurant only');
-    console.log('Restaurant code:', restaurantCode);
-    console.log('Owner email:', sanitizedData.ownerEmail);
-    console.log('Password:', password);
+    let userRecord;
+    try {
+      userRecord = await adminAuth.createUser({
+        email: sanitizedData.ownerEmail,
+        password: password,
+        displayName: sanitizedData.name,
+        emailVerified: false,
+      });
+      console.log('✅ Firebase Auth user created:', userRecord.uid);
+    } catch (authError: any) {
+      console.error('❌ Failed to create Firebase Auth user:', authError);
+      if (authError.code === 'auth/email-already-exists') {
+        return res.status(400).json({
+          success: false,
+          error: 'Un compte existe déjà avec cet email'
+        });
+      }
+      throw authError;
+    }
+
+    // Add ownerId to restaurant data
+    restaurantData.ownerId = userRecord.uid;
 
     // Save restaurant to Firestore
     const docRef = await addDoc(collection(db, 'restaurants'), restaurantData);
+    
+    // Create user document in /users collection for backoffice access
+    try {
+      await adminDb.collection('users').doc(userRecord.uid).set({
+        uid: userRecord.uid,
+        email: sanitizedData.ownerEmail,
+        name: sanitizedData.name,
+        role: 'restaurant_owner',
+        restaurantId: docRef.id,
+        restaurantCode: restaurantCode,
+        permissions: ['manage_reservations', 'manage_settings', 'view_analytics'],
+        restaurants: [docRef.id],
+        createdAt: new Date().toISOString(),
+        subscriptionStatus: 'trial',
+        trialEndDate: trialEndDate.toISOString(),
+      });
+      console.log('✅ User document created in /users collection');
+    } catch (userDocError) {
+      console.error('❌ Failed to create user document:', userDocError);
+      // Don't fail the signup if user doc creation fails
+    }
 
     // Send welcome email
     try {
