@@ -63,8 +63,8 @@ export function validateName(name: string): ValidationResult {
     return { isValid: false, error: 'Nom trop long (maximum 100 caractères)' };
   }
   
-  // Allow letters, spaces, hyphens, apostrophes
-  const nameRegex = /^[a-zA-ZÀ-ÿ\s'-]+$/;
+  // Allow letters, numbers, spaces, hyphens, apostrophes, ampersands, and common punctuation
+  const nameRegex = /^[a-zA-ZÀ-ÿ0-9\s'&.,()-]+$/;
   if (!nameRegex.test(name)) {
     return { isValid: false, error: 'Nom contient des caractères invalides' };
   }
