@@ -181,6 +181,23 @@ export default async function handler(
         emailVerified: false,
       });
       console.log('✅ Firebase Auth user created:', userRecord.uid);
+      
+      // Generate email verification link
+      try {
+        const verificationLink = await adminAuth.generateEmailVerificationLink(
+          sanitizedData.ownerEmail,
+          {
+            url: 'https://app.restaurantmanagerpro.fr/login?verified=true',
+          }
+        );
+        console.log('✅ Email verification link generated');
+        
+        // Store verification link to send in welcome email
+        restaurantData.verificationLink = verificationLink;
+      } catch (linkError) {
+        console.error('⚠️ Failed to generate verification link:', linkError);
+        // Continue without verification link
+      }
     } catch (authError: any) {
       console.error('❌ Failed to create Firebase Auth user:', authError);
       if (authError.code === 'auth/email-already-exists') {
@@ -228,6 +245,7 @@ export default async function handler(
         backofficeUrl: 'https://app.restaurantmanagerpro.fr',
         widgetUrl: 'https://widget.restaurantmanagerpro.fr/widget.js',
         trialEndDate: trialEndDate.toISOString(),
+        verificationLink: restaurantData.verificationLink,
       });
     } catch (emailError) {
       console.error('Failed to send welcome email:', emailError);

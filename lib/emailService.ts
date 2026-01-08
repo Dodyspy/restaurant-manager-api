@@ -8,6 +8,7 @@ interface WelcomeEmailParams {
   backofficeUrl: string;
   widgetUrl: string;
   trialEndDate: string;
+  verificationLink?: string;
 }
 
 export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<boolean> {
@@ -25,6 +26,7 @@ export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<bool
         backofficeUrl: params.backofficeUrl,
         widgetUrl: params.widgetUrl,
         trialEndDate: params.trialEndDate,
+        verificationLink: params.verificationLink,
       }),
     });
 
