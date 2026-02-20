@@ -56,10 +56,11 @@ export default async function handler(
     const openingHours = restaurant.openingHours || {};
 
     // Check if restaurant is active
+    // NOTE: reservationLimit check disabled for now
     const isActive = 
       subscriptionStatus === 'active' && 
       paymentStatus !== 'overdue' &&
-      reservationsThisMonth < reservationLimit &&
+      // reservationsThisMonth < reservationLimit &&
       !temporarilyClosed &&
       !isFull;
 
@@ -111,8 +112,8 @@ function getInactiveReason(
   if (paymentStatus === 'overdue') {
     return 'Payment is overdue';
   }
-  if (reservationsThisMonth >= reservationLimit) {
-    return 'Monthly reservation limit reached';
-  }
+  // if (reservationsThisMonth >= reservationLimit) {
+  //   return 'Monthly reservation limit reached';
+  // }
   return 'Service temporarily unavailable';
 }
